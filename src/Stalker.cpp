@@ -62,7 +62,12 @@ void Join_Behind(uint64 schID) {
 
 
 void moveevent(uint64 schID, anyID movedID,uint64 oldChannelID,uint64 newChannelID) {
+	if (lonlyVictim.active == false) return;
 	if (schID != lonlyVictim.schID) return;
+
+	if (newChannelID == 0){
+		deleteVictim();
+	}
 
 	if (movedID == lonlyVictim.victimID) {
 		lonlyVictim.victimChannelID = newChannelID;
@@ -82,7 +87,7 @@ void moveevent(uint64 schID, anyID movedID,uint64 oldChannelID,uint64 newChannel
 
 
 void kickedFromServer(uint64 schID, anyID kickedID) {
-
+	if (lonlyVictim.active == false) return;
 	if (schID != lonlyVictim.schID) return;
 
 	if (kickedID == lonlyVictim.victimID) {
@@ -91,7 +96,7 @@ void kickedFromServer(uint64 schID, anyID kickedID) {
 	}
 }
 void bannedFromServer(uint64 schID, anyID kickedID) {
-
+	if (lonlyVictim.active == false) return;
 	if (schID != lonlyVictim.schID) return;
 
 	if (kickedID == lonlyVictim.victimID) {
@@ -101,6 +106,7 @@ void bannedFromServer(uint64 schID, anyID kickedID) {
 }
 
 void kickedFromChannel(uint64 schID,anyID kickedID) {
+	if (lonlyVictim.active == false) return;
 
 	if (schID != lonlyVictim.schID) return;
 
@@ -111,17 +117,20 @@ void kickedFromChannel(uint64 schID,anyID kickedID) {
 }
 
 void whereIsMyVictim() {
-
-	std::string output;
-	output += "your Victim: ";
-	char buf1[TS3_MAX_SIZE_CLIENT_NICKNAME];
-	ts3Functions.getClientDisplayName(lonlyVictim.schID, lonlyVictim.victimID, buf1, TS3_MAX_SIZE_CLIENT_NICKNAME);
-	output += buf1;
-	output += " is in the Channel: ";
-	char *buf2;
-	ts3Functions.getChannelVariableAsString(lonlyVictim.schID, lonlyVictim.victimChannelID, CHANNEL_NAME, &buf2);
-
-	printf("%s",output.c_str());
+	if (lonlyVictim.active == false) {
+		ts3Functions.printMessageToCurrentTab("you dont have a Victim");
+	}
+	else {
+		std::string output;
+		output += "your Victim: ";
+		char buf1[TS3_MAX_SIZE_CLIENT_NICKNAME];
+		ts3Functions.getClientDisplayName(lonlyVictim.schID, lonlyVictim.victimID, buf1, TS3_MAX_SIZE_CLIENT_NICKNAME);
+		output += buf1;
+		output += " is in the Channel: ";
+		char *buf2;
+		ts3Functions.getChannelVariableAsString(lonlyVictim.schID, lonlyVictim.victimChannelID, CHANNEL_NAME, &buf2);
+		ts3Functions.printMessageToCurrentTab(output.c_str());
+	}
 }
 
 
