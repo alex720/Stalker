@@ -5,9 +5,13 @@ static struct victim lonlyVictim;
 static bool isChannelMaxReached;
 static bool not_enough_rights;
 static struct TS3Functions ts3Functions;
+static char *pluginID;
 
-void initTS3FuntkionPointer(const struct TS3Functions &_ts3Functions) {
-	ts3Functions = _ts3Functions;
+void initStalker(const struct TS3Functions &_ts3Functions) {
+
+		ts3Functions = _ts3Functions;
+		
+	
 }
 
 
@@ -51,6 +55,7 @@ void Join_Behind(uint64 schID) {
 	anyID myID;
 	ts3Functions.getClientID(schID, &myID);
 
+
 	uint64 myChannelID;
 	ts3Functions.getChannelOfClient(schID, myID, &myChannelID);
 
@@ -59,22 +64,32 @@ void Join_Behind(uint64 schID) {
 		return;
 	}
 
+
 	int pw;
 	ts3Functions.getChannelVariableAsInt(schID, lonlyVictim.victimChannelID,CHANNEL_FLAG_PASSWORD, &pw);
 	if (pw == 1) {
 		ts3Functions.printMessageToCurrentTab("Channel of the victim has an password not possible to join");
 		return;
 	}
+	//char returnCode[RETURNCODE_BUFSIZE];
+
+	//ts3Functions.createReturnCode(getPluginID() , returnCode, RETURNCODE_BUFSIZE);
 	
+	if (ts3Functions.requestClientMove(schID, myID, lonlyVictim.victimChannelID, "", "stalk") == 777U) {
+		
+	}
+	
+	/*
+	Sleep(1000);
 
-	int error = ts3Functions.requestClientMove(schID, myID, lonlyVictim.victimChannelID, "", NULL);
+	printf(std::to_string(error).c_str());
 
-	if (error == 0x0309) {
+	if (error == 777) {
 		ts3Functions.printMessageToCurrentTab("Channel Max Clients Reached");
 		isChannelMaxReached = true;
 	}
 
-
+	*/
 
 }
 
@@ -92,15 +107,17 @@ void moveevent(uint64 schID, anyID movedID,uint64 oldChannelID,uint64 newChannel
 		isChannelMaxReached = false;
 		not_enough_rights = false;
 	}
-
-	if (isChannelMaxReached) {
+	if (isChannelMaxReached && (movedID != lonlyVictim.victimID)) {
 		if (lonlyVictim.victimChannelID == oldChannelID) {
 			isChannelMaxReached = false;
 		}
-		else { return; }
 	}
-
-	Join_Behind(schID);
+	if (isChannelMaxReached) {
+		return;
+	}
+	std::thread mythread(Join_Behind, schID);
+	mythread.detach();
+	
 
 }
 
@@ -181,7 +198,36 @@ anyID getIDofUID(uint64 schID, std::string UID ) {
 	return 0;
 }
 
+int ts3plugin_onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {
+	std::cout << returnCode << "test1" << error << std::endl;
 
+	if (std::string::npos != (std::string(returnCode).find( "stalk"))) {
 
+		if (error == 777U) {
 
+			ts3Functions.printMessageToCurrentTab("Channel Max Clients Reached");
+			isChannelMaxReached = true;
+		}
+
+		/* A plugin could now check the returnCode with previously (when calling a function) remembered returnCodes and react accordingly */
+		/* In case of using a a plugin return code, the plugin can return:
+		* 0: Client will continue handling this error (print to chat tab)
+		* 1: Client will ignore this error, the plugin announces it has handled it */
+		return 1;
+	}
+	return 0;  /* If no plugin return code was used, the return value of this function is ignored */
+}
+
+void ts3plugin_onUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
+
+	if (serverConnectionHandlerID != lonlyVictim.schID) return;
+
+	if (channelID == lonlyVictim.victimChannelID) {
+
+		Join_Behind(serverConnectionHandlerID);
+		isChannelMaxReached = false;
+		not_enough_rights = false;
+	}
+
+}
 

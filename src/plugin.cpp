@@ -20,7 +20,7 @@
 #include "teamspeak/clientlib_publicdefinitions.h"
 #include "ts3_functions.h"
 #include "plugin.h"
-#include "Stalker.h"
+
 
 
 
@@ -41,6 +41,12 @@
 #define RETURNCODE_BUFSIZE 128
 
 static char* pluginID = NULL;
+
+char * getPluginID() {
+	return pluginID;
+}
+
+#include "Stalker.h"
 
 static struct TS3Functions ts3Functions;
 #ifdef _WIN32
@@ -110,8 +116,9 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
  * If the function returns 1 on failure, the plugin will be unloaded again.
  */
 int ts3plugin_init() {
-
-	initTS3FuntkionPointer(ts3Functions);
+	
+		initStalker(ts3Functions);
+	
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -180,6 +187,7 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
 
 /* Client changed current server connection handler */
 void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) {
+	
 }
 
 /*
@@ -342,13 +350,12 @@ void ts3plugin_onNewChannelCreatedEvent(uint64 serverConnectionHandlerID, uint64
 void ts3plugin_onDelChannelEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 }
 
-void ts3plugin_onUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint64 channelID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
-}
 
 void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 }
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
+	
 
 	moveevent(serverConnectionHandlerID,clientID,oldChannelID,newChannelID);
 

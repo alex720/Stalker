@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2008-2017 TeamSpeak Systems GmbH
  */
-
+#pragma once
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
@@ -16,8 +16,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 	
+	char * getPluginID();
 
 /* Required functions */
 PLUGINS_EXPORTDLL const char* ts3plugin_name();
