@@ -12,7 +12,7 @@ struct victim {
 	uint64 victimChannelID;
 	bool active;
 };
-void initTS3FuntkionPointer(const struct TS3Functions _ts3Functions);
+void initTS3FuntkionPointer(const struct TS3Functions &_ts3Functions);
 void newVictim(uint64 schID, anyID victimID);
 void deleteVictim();
 void moveevent(uint64 schID, anyID movedID, uint64 oldChannelID,uint64 newChannelID);

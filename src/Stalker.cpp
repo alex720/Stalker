@@ -6,7 +6,7 @@ static bool isChannelMaxReached;
 static bool not_enough_rights;
 static struct TS3Functions ts3Functions;
 
-void initTS3FuntkionPointer(const struct TS3Functions _ts3Functions) {
+void initTS3FuntkionPointer(const struct TS3Functions &_ts3Functions) {
 	ts3Functions = _ts3Functions;
 }
 
@@ -27,6 +27,24 @@ void deleteVictim() {
 	lonlyVictim.active = false;
 }
 
+
+void getClientIdLink(uint64 serverConnectionHandlerID, anyID clientID, std::string &clientLink) {
+	std::string cClientID = std::to_string(clientID);
+
+	char *clientUid;
+	char *username;
+
+	if (clientID == 0) {
+		ts3Functions.getServerVariableAsString(serverConnectionHandlerID, VIRTUALSERVER_NAME, &username);
+		clientUid = "";
+	}
+	else {
+		ts3Functions.getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_UNIQUE_IDENTIFIER, &clientUid);
+		ts3Functions.getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &username);
+	}
+
+	clientLink = "[color=firebrick][URL=client://" + cClientID + "/" + clientUid + "]\"" + username + "\"[/URL][/color]";
+}
 
 void Join_Behind(uint64 schID) {
 
@@ -65,7 +83,7 @@ void moveevent(uint64 schID, anyID movedID,uint64 oldChannelID,uint64 newChannel
 	if (lonlyVictim.active == false) return;
 	if (schID != lonlyVictim.schID) return;
 
-	if (newChannelID == 0){
+	if (newChannelID == 0 && movedID == lonlyVictim.victimID){
 		deleteVictim();
 	}
 
@@ -123,12 +141,17 @@ void whereIsMyVictim() {
 	else {
 		std::string output;
 		output += "your Victim: ";
-		char buf1[TS3_MAX_SIZE_CLIENT_NICKNAME];
-		ts3Functions.getClientDisplayName(lonlyVictim.schID, lonlyVictim.victimID, buf1, TS3_MAX_SIZE_CLIENT_NICKNAME);
+		std::string buf1;
+		getClientIdLink(lonlyVictim.schID, lonlyVictim.victimID, buf1);
 		output += buf1;
 		output += " is in the Channel: ";
 		char *buf2;
 		ts3Functions.getChannelVariableAsString(lonlyVictim.schID, lonlyVictim.victimChannelID, CHANNEL_NAME, &buf2);
+		output += buf2;
+		output += " on the Server: ";
+		char *buf3;
+		ts3Functions.getServerVariableAsString(lonlyVictim.schID, VIRTUALSERVER_NAME, &buf3);
+		output += buf3;
 		ts3Functions.printMessageToCurrentTab(output.c_str());
 	}
 }
@@ -157,10 +180,7 @@ anyID getIDofUID(uint64 schID, std::string UID ) {
 	return 0;
 }
 
-void Check_For_Victim(uint64 schID,uint64 channelID) {
 
-
-}
 
 
 
