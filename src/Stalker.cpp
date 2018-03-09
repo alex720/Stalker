@@ -97,6 +97,7 @@ void moveevent(uint64 schID, anyID movedID,uint64 oldChannelID,uint64 newChannel
 		if (lonlyVictim.victimChannelID == oldChannelID) {
 			isChannelMaxReached = false;
 		}
+		else { return; }
 	}
 
 	Join_Behind(schID);
