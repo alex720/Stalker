@@ -68,7 +68,7 @@ void Join_Behind(uint64 schID) {
 	int pw;
 	ts3Functions.getChannelVariableAsInt(schID, lonlyVictim.victimChannelID,CHANNEL_FLAG_PASSWORD, &pw);
 	if (pw == 1) {
-		ts3Functions.printMessageToCurrentTab("Channel of the victim has an password not possible to join");
+		ts3Functions.printMessageToCurrentTab("Victim's new channel is passworded, you can't follow him.");
 		return;
 	}
 	//char returnCode[RETURNCODE_BUFSIZE];
@@ -128,7 +128,7 @@ void kickedFromServer(uint64 schID, anyID kickedID) {
 
 	if (kickedID == lonlyVictim.victimID) {
 		deleteVictim();
-		printf("Your victim was kicked out of the Server, the ID get resetted");
+		printf("Your victim was kicked from the Server, stopping!");
 	}
 }
 void bannedFromServer(uint64 schID, anyID kickedID) {
@@ -137,7 +137,7 @@ void bannedFromServer(uint64 schID, anyID kickedID) {
 
 	if (kickedID == lonlyVictim.victimID) {
 		deleteVictim();
-		printf("Your victim was kicked out of the Server, the ID get resetted");
+		printf("Your victim was banned from the Server, stopping!");
 	}
 }
 
@@ -154,11 +154,11 @@ void kickedFromChannel(uint64 schID,anyID kickedID) {
 
 void whereIsMyVictim() {
 	if (lonlyVictim.active == false) {
-		ts3Functions.printMessageToCurrentTab("you dont have a Victim");
+		ts3Functions.printMessageToCurrentTab("You dont have a Victim");
 	}
 	else {
 		std::string output;
-		output += "your Victim: ";
+		output += "Your Victim: ";
 		std::string buf1;
 		getClientIdLink(lonlyVictim.schID, lonlyVictim.victimID, buf1);
 		output += buf1;
